@@ -6,6 +6,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void processInput(GLFWwindow *window);
+
 int main()
 {
     glfwInit();
@@ -30,5 +33,30 @@ int main()
     }
     printf("OpenGL %d.%d\n", GLVersion.major, GLVersion.minor);
 
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    glViewport(0, 0, 800, 600);
+
+    while (!glfwWindowShouldClose(window))
+    {
+        //render(window);
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
     return 0;
+}
+
+void processInput(GLFWwindow *window)
+{
+    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+}
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
 }
