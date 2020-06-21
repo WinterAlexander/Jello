@@ -18,6 +18,9 @@ class jello::ShaderProgram {
 
     GLuint shaderProgramId;
 public:
+    ShaderProgram()
+        : vertexShader(), fragmentShader(), shaderProgramId(-1) {}
+
     ShaderProgram(std::string vertexShader, std::string fragmentShader)
         : vertexShader(std::move(vertexShader)), fragmentShader(std::move(fragmentShader)), shaderProgramId(-1) {}
 
