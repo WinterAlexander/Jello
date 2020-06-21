@@ -17,7 +17,7 @@ public:
     virtual ~Mesh() = default;
 
     virtual int getVertexCount() const = 0;
-    virtual void getVertices(float arr[]) const = 0;
+    virtual void getVertices(float* arr) const = 0;
 };
 
 

@@ -7,6 +7,7 @@
 
 #include <vertex/Vertex.h>
 #include <vector>
+#include <vertex/Particle.h>
 #include "Mesh.h"
 
 namespace jello {
@@ -14,8 +15,12 @@ namespace jello {
 }
 
 class jello::ElasticMesh : public jello::Mesh {
-    std::vector<jello::Vertex> vertices;
+    std::vector<jello::Particle> particles;
 
+public:
+    int getVertexCount() const override;
+
+    void getVertices(float* arr) const override;
 };
 
 

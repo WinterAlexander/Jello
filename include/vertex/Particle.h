@@ -18,10 +18,11 @@ class jello::Particle : public jello::Vertex {
     float mass;
 
 public:
-    Particle() : Vertex(), velocity(0.0f), mass(1.0f) {}
+    Particle(const glm::vec3& position, float mass, const glm::vec3& velocity = glm::vec3(0.0f))
+        : position(position), velocity(velocity), mass(mass) {}
 
     [[nodiscard]]
-    const glm::vec3& getPosition() const;
+    const glm::vec3& getPosition() const override;
 
     [[nodiscard]]
     const glm::vec3& getVelocity() const;

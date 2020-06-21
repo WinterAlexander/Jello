@@ -4,7 +4,6 @@
 
 #include <gtest/gtest.h>
 
-TEST(term, dummy_test)
-{
+TEST(term, dummy_test) {
     ASSERT_EQ(2, 1 + 1);
 }

@@ -6,17 +6,14 @@
 
 using namespace jello;
 
-const glm::vec3& Particle::getPosition() const
-{
+const glm::vec3& Particle::getPosition() const {
     return position;
 }
 
-const glm::vec3& Particle::getVelocity() const
-{
+const glm::vec3& Particle::getVelocity() const {
     return velocity;
 }
 
-float Particle::getMass() const
-{
+float Particle::getMass() const {
     return mass;
 }
