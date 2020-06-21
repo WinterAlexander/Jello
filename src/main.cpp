@@ -6,13 +6,18 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <render/ShaderCompilationError.h>
-#include "vertex/Vertex.h"
+#include <logging/StandardOutputLogger.h>
 #include "render/ShaderProgram.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 
 int main() {
+
+    jello::StandardOutputLogger logger;
+
+    logger.info("Initialized logger to standard ouput.");
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -22,7 +27,7 @@ int main() {
 
     if(!window)
     {
-        std::cout << "Failed to create GLFW window" << std::endl;
+        logger.error("Failed to create GLFW window");
         glfwTerminate();
         return -1;
     }
@@ -30,11 +35,11 @@ int main() {
     glfwMakeContextCurrent(window);
 
     if(!gladLoadGL()) {
-        std::cout << "glad failed to load" << std::endl;
+        logger.error("glad failed to load");
         exit(-1);
     }
 
-    std::cout << "glad loaded OpenGL" << GLVersion.major << "." << GLVersion.minor << std::endl;
+    logger.info(std::string("glad loaded OpenGL") + std::to_string(GLVersion.major) + "." + std::to_string(GLVersion.minor));
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
@@ -71,7 +76,7 @@ int main() {
     try {
         shaderProgram.compile();
     } catch (const jello::ShaderCompilationError& error) {
-        std::cout << error.what() << std::endl;
+        logger.error(error.what());
         return -1;
     }
 
