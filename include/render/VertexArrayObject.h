@@ -14,9 +14,12 @@ namespace jello {
 class jello::VertexArrayObject {
     const GLuint vaoId;
 
+    VertexArrayObject(const VertexArrayObject&);
+    VertexArrayObject& operator=(const VertexArrayObject&);
 public:
     VertexArrayObject();
-    VertexArrayObject(const VertexArrayObject& vao) = default;
+
+    ~VertexArrayObject();
 
     void bind() const;
     void unbind() const;

@@ -8,6 +8,10 @@ jello::VertexArrayObject::VertexArrayObject() : vaoId(genVAO()) {
 
 }
 
+jello::VertexArrayObject::~VertexArrayObject() {
+    glDeleteVertexArrays(1, &vaoId);
+}
+
 void jello::VertexArrayObject::bind() const {
     glBindVertexArray(vaoId);
 }

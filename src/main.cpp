@@ -3,17 +3,20 @@
 //
 
 #include <iostream>
+#include <fstream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <render/ShaderCompilationError.h>
 #include <logging/StandardOutputLogger.h>
 #include <render/VertexArrayObject.h>
 #include "render/ShaderProgram.h"
+#include <memory>
+#include <sstream>
+#include <math.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow *window);
-jello::ShaderProgram loadShader(const jello::Logger& logger);
-
+void processInput(GLFWwindow* window);
+std::shared_ptr<jello::ShaderProgram> loadShader(const std::string& vsFile, const std::string& fsFile, const jello::Logger &logger);
 
 int main() {
 
@@ -26,7 +29,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", nullptr, nullptr);
 
     if(!window)
     {
@@ -42,33 +45,36 @@ int main() {
         exit(-1);
     }
 
-    logger.info(std::string("glad loaded OpenGL") + std::to_string(GLVersion.major) + "." + std::to_string(GLVersion.minor));
+    logger.info(std::string("glad loaded OpenGL ") + std::to_string(GLVersion.major) + "." + std::to_string(GLVersion.minor));
+
+    int nrAttributes;
+    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
+    logger.info(std::string("Maximum number of vertex attributes supported: ") + std::to_string(nrAttributes));
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     glViewport(0, 0, 800, 600);
 
-    jello::ShaderProgram shaderProgram;
+    std::shared_ptr<jello::ShaderProgram> shaderProgram;
 
     try {
-        shaderProgram = loadShader(logger);
+        shaderProgram = loadShader("res/default.vs.glsl", "res/default.fs.glsl", logger);
     } catch (const jello::ShaderCompilationError& error) {
         logger.error(error.what());
         return -1;
     }
 
     GLuint vbo, ebo;
+    jello::VertexArrayObject vao;
 
     glGenBuffers(1, &vbo);
     glGenBuffers(1, &ebo);
 
-    jello::VertexArrayObject vao;
-
     float vertices[] = {
-            0.5f,  0.5f, 0.0f,  // top right
-            0.5f, -0.5f, 0.0f,  // bottom right
-            -0.5f, -0.5f, 0.0f,  // bottom left
-            -0.5f,  0.5f, 0.0f   // top left
+            0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 0.0f, // top right
+            0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 1.0f, // bottom right
+            -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 1.0f, // bottom left
+            -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 1.0f, // top left
     };
     unsigned int indices[] = {  // note that we start from 0!
             0, 1, 3,   // first triangle
@@ -80,30 +86,43 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    while (!glfwWindowShouldClose(window))
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    vao.unbind();
+
+    while(!glfwWindowShouldClose(window))
     {
         processInput(window);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        shaderProgram.bind();
+        shaderProgram->bind();
+        float timeValue = glfwGetTime();
+        glUniform2f(shaderProgram->getUniformLocation("offset"), sin(timeValue) / 5.0f, cos(timeValue) / 5.0f);
         vao.bind();
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        vao.unbind();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    glDeleteBuffers(1, &vbo);
 
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
 }
 
-void processInput(GLFWwindow *window) {
+void processInput(GLFWwindow* window) {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 }
@@ -112,23 +131,30 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-jello::ShaderProgram loadShader(const jello::Logger &logger) {
-    const char* vertexShaderSource = "layout (location = 0) in vec3 aPos;\n"
-                                     "void main()\n"
-                                     "{\n"
-                                     "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-                                     "}";
+std::shared_ptr<jello::ShaderProgram> loadShader(const std::string& vsFile, const std::string& fsFile, const jello::Logger &logger) {
+    std::ifstream vsSourceFile(vsFile);
+    std::ifstream fsSourceFile(fsFile);
 
-    const char* fragmentShaderSource = "out vec4 FragColor;\n"
-                                       "\n"
-                                       "void main()\n"
-                                       "{\n"
-                                       "    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-                                       "}";
+    if(!vsSourceFile.good() || !fsSourceFile.good())
+        throw std::runtime_error("Shader file(s) not found");
 
-    jello::ShaderProgram shaderProgram(vertexShaderSource, fragmentShaderSource);
-    shaderProgram.prepend("#version 330 core\n");
-    shaderProgram.compile();
+    std::stringstream buffer;
+    buffer << vsSourceFile.rdbuf();
 
-    return shaderProgram;
+    std::string vertexShaderSource = buffer.str();
+
+    buffer.str(std::string());
+    buffer.clear();
+    buffer << fsSourceFile.rdbuf();
+
+    std::string fragmentShaderSource = buffer.str();
+
+    vsSourceFile.close();
+    fsSourceFile.close();
+
+    jello::ShaderProgram* shaderProgram = new jello::ShaderProgram(vertexShaderSource, fragmentShaderSource);
+    shaderProgram->prepend("#version 330 core\n");
+    shaderProgram->compile();
+
+    return std::shared_ptr<jello::ShaderProgram>(shaderProgram);
 }

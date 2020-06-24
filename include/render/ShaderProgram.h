@@ -43,6 +43,9 @@ public:
 
     void bind();
 
+    [[nodiscard]]
+    GLint getUniformLocation(const std::string& str);
+
 private:
     void dispose();
 
