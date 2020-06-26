@@ -67,7 +67,7 @@ bool jello::ShaderProgram::isCompiled() const {
     return shaderProgramId != (GLuint)-1;
 }
 
-void jello::ShaderProgram::bind() {
+void jello::ShaderProgram::bind() const {
     glUseProgram(shaderProgramId);
 }
 
@@ -91,6 +91,6 @@ void jello::ShaderProgram::dispose() {
     shaderProgramId = -1;
 }
 
-GLint jello::ShaderProgram::getUniformLocation(const std::string& str) {
+GLint jello::ShaderProgram::getUniformLocation(const std::string& str) const {
     return glGetUniformLocation(shaderProgramId, str.c_str());
 }

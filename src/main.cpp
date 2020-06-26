@@ -13,6 +13,8 @@
 #include <memory>
 #include <sstream>
 #include <math.h>
+#include <stb_image.h>
+#include <render/Texture.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -58,11 +60,26 @@ int main() {
     std::shared_ptr<jello::ShaderProgram> shaderProgram;
 
     try {
-        shaderProgram = loadShader("res/default.vs.glsl", "res/default.fs.glsl", logger);
+        shaderProgram = loadShader("res/shader/default.vs.glsl", "res/shader/default.fs.glsl", logger);
     } catch (const jello::ShaderCompilationError& error) {
         logger.error(error.what());
         return -1;
     }
+
+    stbi_set_flip_vertically_on_load(true);
+
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load("res/gfx/brickwall.jpg", &width, &height, &nrChannels, 0);
+
+    if(!data)
+    {
+        logger.error("Failed to load texture");
+        return -1;
+    }
+
+    jello::Texture texture(width, height, data);
+
+    stbi_image_free(data);
 
     GLuint vbo, ebo;
     jello::VertexArrayObject vao;
@@ -71,11 +88,13 @@ int main() {
     glGenBuffers(1, &ebo);
 
     float vertices[] = {
-            0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 0.0f, // top right
-            0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 1.0f, // bottom right
-            -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 1.0f, // bottom left
-            -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 1.0f, // top left
+            // pos                  color               tex coords
+            0.5f, 0.5f, 0.0f,       1.0f, 1.0f, 0.0f,   1.0f, 1.0f, // top right
+            0.5f, -0.5f, 0.0f,      1.0f, 0.0f, 1.0f,   1.0f, 0.0f, // bottom right
+            -0.5f, -0.5f, 0.0f,     0.0f, 1.0f, 1.0f,   0.0f, 0.0f, // bottom left
+            -0.5f, 0.5f, 0.0f,      1.0f, 1.0f, 1.0f,   0.0f, 1.0f, // top left
     };
+
     unsigned int indices[] = {  // note that we start from 0!
             0, 1, 3,   // first triangle
             1, 2, 3    // second triangle
@@ -89,11 +108,14 @@ int main() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     vao.unbind();
 
@@ -107,7 +129,12 @@ int main() {
         shaderProgram->bind();
         float timeValue = glfwGetTime();
         glUniform2f(shaderProgram->getUniformLocation("offset"), sin(timeValue) / 5.0f, cos(timeValue) / 5.0f);
+        glUniform1i(shaderProgram->getUniformLocation("tex"), 0);
+
+        glActiveTexture(GL_TEXTURE0);
+        texture.bind();
         vao.bind();
+
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         vao.unbind();
 

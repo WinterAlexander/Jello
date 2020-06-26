@@ -41,10 +41,10 @@ public:
     [[nodiscard]]
     bool isCompiled() const;
 
-    void bind();
+    void bind() const;
 
     [[nodiscard]]
-    GLint getUniformLocation(const std::string& str);
+    GLint getUniformLocation(const std::string& str) const;
 
 private:
     void dispose();

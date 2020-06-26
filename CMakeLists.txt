@@ -13,13 +13,14 @@ set(GTEST_VERSION release-1.10.0)
 set(GLAD_VERSION v0.1.33)
 set(GLM_VERSION 0.9.9.8)
 
-file(GLOB_RECURSE JELLO_SRC_FILES "src/*.cpp" "include/*.h")
+file(GLOB_RECURSE JELLO_SRC_FILES "src/*.cpp" "include/*.h" "lib/stb_image/*.cpp" "lib/stb_image/*.h")
 
 add_subdirectory(lib/glad)
 add_subdirectory(lib/glfw)
 add_subdirectory(lib/glm)
 
 include_directories(include)
+include_directories(lib/stb_image)
 include_directories(${GLAD_INCLUDE_DIRS})
 include_directories(${GLFW_INCLUDE_DIRS})
 include_directories(${GLM_INCLUDE_DIRS})
