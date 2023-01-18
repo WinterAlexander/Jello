@@ -6,30 +6,34 @@
 #include <iostream>
 #include <ctime>
 
-void jello::StandardOutputLogger::debug(std::string message) const {
-    if(getLogLevel() <= DEBUG)
-        std::cout << getTimeString() << "[DEBUG] " << message << std::endl;
+std::ostream& jello::StandardOutputLogger::debug() const {
+	if(getLogLevel() <= DEBUG)
+		return std::cout << "\n[DEBUG] ";
+	return nullStream;
 }
 
-void jello::StandardOutputLogger::info(std::string message) const {
-    if(getLogLevel() <= INFO)
-        std::cout << getTimeString() << "[INFO] " << message << std::endl;
+std::ostream& jello::StandardOutputLogger::info() const {
+	if(getLogLevel() <= INFO)
+		return std::cout << "\n[INFO] ";
+	return nullStream;
 }
 
-void jello::StandardOutputLogger::warning(std::string message) const {
-    if(getLogLevel() <= WARNING)
-        std::cout << getTimeString() << "[WARNING] " << message << std::endl;
+std::ostream& jello::StandardOutputLogger::warning() const {
+	if(getLogLevel() <= WARNING)
+		return std::cout << "\n[WARNING] ";
+	return nullStream;
 }
 
-void jello::StandardOutputLogger::error(std::string message) const {
-    if(getLogLevel() <= ERROR)
-        std::cout << getTimeString() << "[ERROR] " << message << std::endl;
+std::ostream& jello::StandardOutputLogger::error() const {
+	if(getLogLevel() <= ERROR)
+		return std::cout << "\n[ERROR] ";
+	return nullStream;
 }
 
 std::string jello::StandardOutputLogger::getTimeString() const {
-    std::time_t t = std::time(nullptr); // gets time now
-    char c_str[512];
+	std::time_t t = std::time(nullptr); // gets time now
+	char c_str[512];
 
-    std::strftime(c_str, 512, "[%H:%M:%S]", std::localtime(&t));
-    return std::string(c_str);
+	std::strftime(c_str, 512, "[%H:%M:%S]", std::localtime(&t));
+	return std::string(c_str);
 }

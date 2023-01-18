@@ -10,6 +10,7 @@
 #include <logging/StandardOutputLogger.h>
 #include <render/VertexArrayObject.h>
 #include "render/ShaderProgram.h"
+#include "render/Camera.h"
 #include <memory>
 #include <sstream>
 #include <math.h>
@@ -23,11 +24,13 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 std::shared_ptr<jello::ShaderProgram> loadShader(const std::string& vsFile, const std::string& fsFile, const jello::Logger &logger);
 
+jello::Camera camera;
+
 int main() {
 
     jello::StandardOutputLogger logger;
 
-    logger.info("Initialized logger to standard ouput.");
+    logger.info() << "Initialized logger to standard ouput.";
 
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -38,7 +41,7 @@ int main() {
 
     if(!window)
     {
-        logger.error("Failed to create GLFW window");
+        logger.error() << "Failed to create GLFW window";
         glfwTerminate();
         return -1;
     }
@@ -46,15 +49,15 @@ int main() {
     glfwMakeContextCurrent(window);
 
     if(!gladLoadGL()) {
-        logger.error("glad failed to load");
+        logger.error() << ("glad failed to load");
         exit(-1);
     }
 
-    logger.info(std::string("glad loaded OpenGL ") + std::to_string(GLVersion.major) + "." + std::to_string(GLVersion.minor));
+    logger.info() << (std::string("glad loaded OpenGL ") + std::to_string(GLVersion.major) + "." + std::to_string(GLVersion.minor));
 
     int nrAttributes;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
-    logger.info(std::string("Maximum number of vertex attributes supported: ") + std::to_string(nrAttributes));
+    logger.info() << (std::string("Maximum number of vertex attributes supported: ") + std::to_string(nrAttributes));
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
@@ -65,7 +68,7 @@ int main() {
     try {
         shaderProgram = loadShader("res/shader/default.vs.glsl", "res/shader/default.fs.glsl", logger);
     } catch (const jello::ShaderCompilationError& error) {
-        logger.error(error.what());
+        logger.error() << (error.what());
         return -1;
     }
 
@@ -76,7 +79,7 @@ int main() {
 
     if(!data)
     {
-        logger.error("Failed to load texture");
+        logger.error() << ("Failed to load texture");
         return -1;
     }
 
@@ -179,15 +182,19 @@ int main() {
     shaderProgram->bind();
     glUniform1i(shaderProgram->getUniformLocation("tex"), 0);
 
+	glm::mat4 view;
+	camera.getPosition() = { 0.0, 0.0, 3.0 };
+	camera.getDirection() = { 0.0, 0.0, -1.0 };
+
     while(!glfwWindowShouldClose(window))
     {
         processInput(window);
+	    view = camera.getView();
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         shaderProgram->bind();
-
 
         glActiveTexture(GL_TEXTURE0);
         texture.bind();
@@ -199,9 +206,6 @@ int main() {
             model = glm::translate(model, cubePositions[i]);
             float angle = 20.0f * i;
             model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-            glm::mat4 view = glm::mat4(1.0f);
-            // note that we're translating the scene in the reverse direction of where we want to move
-            view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 
             glm::mat4 proj = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
             glm::mat4x4 trans = proj * view * model;
@@ -229,6 +233,15 @@ int main() {
 void processInput(GLFWwindow* window) {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+	 const float cameraSpeed = 0.05f; // adjust accordingly
+	if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		camera.getPosition() += cameraSpeed * camera.getDirection();
+	if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		camera.getPosition() -= cameraSpeed * camera.getDirection();
+	if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		camera.getPosition() -= cameraSpeed * glm::normalize(glm::cross(camera.getDirection(), camera.getUp()));
+	if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		camera.getPosition() += cameraSpeed * glm::normalize(glm::cross(camera.getDirection(), camera.getUp()));
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {

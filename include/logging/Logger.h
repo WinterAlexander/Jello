@@ -19,13 +19,22 @@ public:
     Logger() : level(DEBUG) {}
     Logger(jello::LogLevel level) : level(level) {}
 
-    virtual void debug(std::string message) const = 0;
-    virtual void info(std::string message) const = 0;
-    virtual void warning(std::string message) const = 0;
-    virtual void error(std::string message) const = 0;
+    virtual std::ostream& debug() const = 0;
+    virtual std::ostream& info() const = 0;
+    virtual std::ostream& warning() const = 0;
+    virtual std::ostream& error() const = 0;
 
+	/**
+	 * @return log level of this logger
+	 */
     [[nodiscard]]
     jello::LogLevel getLogLevel() const;
+
+	/**
+	 * Set the log level of this logger
+	 *
+	 * @param level level to set
+	 */
     void setLogLevel(jello::LogLevel level);
 };
 

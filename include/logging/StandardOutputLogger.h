@@ -6,20 +6,23 @@
 #define JELLO_STANDARDOUTPUTLOGGER_H
 
 #include "Logger.h"
+#include "NullStream.h"
 
 namespace jello {
     class StandardOutputLogger;
 }
 
 class jello::StandardOutputLogger : public jello::Logger {
+	mutable NullStream nullStream;
+
 public:
-    void debug(std::string message) const override;
+	std::ostream& debug() const override;
 
-    void info(std::string message) const override;
+	std::ostream& info() const override;
 
-    void warning(std::string message) const override;
+	std::ostream& warning() const override;
 
-    void error(std::string message) const override;
+	std::ostream& error() const override;
 
 private:
     std::string getTimeString() const;
