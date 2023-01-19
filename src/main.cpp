@@ -11,6 +11,9 @@
 #include <render/VertexArrayObject.h>
 #include "render/ShaderProgram.h"
 #include "render/Camera.h"
+#include "asset/AssetLoader.h"
+#include "asset/ShaderAsset.h"
+#include "asset/TextureAsset.h"
 #include <memory>
 #include <sstream>
 #include <cmath>
@@ -22,10 +25,6 @@
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window, float deltaTime);
-
-std::shared_ptr<jello::ShaderProgram> loadShader(const std::string& vsFile,
-												 const std::string& fsFile,
-												 const jello::Logger& logger);
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -61,39 +60,28 @@ int main() {
         exit(-1);
     }
 
-    logger.info() << std::string("glad loaded OpenGL ") + std::to_string(GLVersion.major) + "." + std::to_string(GLVersion.minor);
+    logger.info() << "glad loaded OpenGL " << GLVersion.major << "." << GLVersion.minor;
 
     int nrAttributes;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
-    logger.info() << (std::string("Maximum number of vertex attributes supported: ") + std::to_string(nrAttributes));
+    logger.info() << "Maximum number of vertex attributes supported: " << nrAttributes;
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     glViewport(0, 0, 800, 600);
+    
+    jello::AssetLoader loader(logger);
 
-    std::shared_ptr<jello::ShaderProgram> shaderProgram;
-
-    try {
-        shaderProgram = loadShader("res/shader/default.vs.glsl", "res/shader/default.fs.glsl", logger);
-    } catch (const jello::ShaderCompilationError& error) {
-        logger.error() << (error.what());
-        return -1;
-    }
-
-    stbi_set_flip_vertically_on_load(true);
-
-    int width, height, nrChannels;
-    unsigned char *data = stbi_load("res/gfx/brickwall.jpg", &width, &height, &nrChannels, 0);
-
-    if(!data)
-    {
-        logger.error() << "Failed to load texture";
-        return -1;
-    }
-
-    jello::Texture texture(width, height, data);
-
-    stbi_image_free(data);
+    jello::ShaderAsset shaderAsset("res/shader/default.vs.glsl", "res/shader/default.fs.glsl");
+    jello::TextureAsset brickWallAsset("res/gfx/brickwall.jpg");
+    
+    loader.load(shaderAsset);
+    loader.load(brickWallAsset);
+    loader.finishLoading(shaderAsset);
+    loader.finishLoading(brickWallAsset);
+    
+    jello::ShaderProgram* shaderProgram = loader.get(shaderAsset);
+    jello::Texture* texture = loader.get(brickWallAsset);
 
     GLuint vbo, ebo;
     jello::VertexArrayObject vao;
@@ -216,7 +204,7 @@ int main() {
         shaderProgram->bind();
 
         glActiveTexture(GL_TEXTURE0);
-        texture.bind();
+        texture->bind();
         vao.bind();
 
         for(unsigned int i = 0; i < 10; i++)
@@ -261,6 +249,11 @@ void processInput(GLFWwindow* window, float deltaTime) {
 		camera.getPosition() -= cameraSpeed * glm::normalize(glm::cross(camera.getDirection(), camera.getUp()));
 	if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.getPosition() += cameraSpeed * glm::normalize(glm::cross(camera.getDirection(), camera.getUp()));
+    if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        camera.getPosition() += cameraSpeed * camera.getUp();
+    if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        camera.getPosition() -= cameraSpeed * camera.getUp();
+    
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -307,32 +300,3 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
 	camera.setFieldOfView(fov);
 }
 
-std::shared_ptr<jello::ShaderProgram> loadShader(const std::string& vsFile,
-												 const std::string& fsFile,
-												 const jello::Logger& logger) {
-    std::ifstream vsSourceFile(vsFile);
-    std::ifstream fsSourceFile(fsFile);
-
-    if(!vsSourceFile.good() || !fsSourceFile.good())
-        throw std::runtime_error("Shader file(s) not found");
-
-    std::stringstream buffer;
-    buffer << vsSourceFile.rdbuf();
-
-    std::string vertexShaderSource = buffer.str();
-
-    buffer.str(std::string());
-    buffer.clear();
-    buffer << fsSourceFile.rdbuf();
-
-    std::string fragmentShaderSource = buffer.str();
-
-    vsSourceFile.close();
-    fsSourceFile.close();
-
-    jello::ShaderProgram* shaderProgram = new jello::ShaderProgram(vertexShaderSource, fragmentShaderSource);
-    shaderProgram->prepend("#version 330 core\n");
-    shaderProgram->compile();
-
-    return std::shared_ptr<jello::ShaderProgram>(shaderProgram);
-}
