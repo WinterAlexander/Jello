@@ -13,6 +13,13 @@ Camera::Camera() : position(0.0, 0.0, 0.0),
 
 }
 
+void Camera::setDirectionFromAngles(float yaw, float pitch) {
+	direction.x = static_cast<float>(cos(glm::radians(yaw)) * cos(glm::radians(pitch)));
+	direction.y = static_cast<float>(sin(glm::radians(pitch)));
+	direction.z = static_cast<float>(sin(glm::radians(yaw)) * cos(glm::radians(pitch)));
+	direction = glm::normalize(direction);
+}
+
 glm::vec3& Camera::getPosition() {
 	return position;
 }
@@ -41,4 +48,12 @@ glm::mat4 Camera::getView() const {
 	return glm::lookAt(position,
 	                   position + direction,
 	                   up);
+}
+
+float Camera::getFieldOfView() const {
+	return fieldOfView;
+}
+
+void Camera::setFieldOfView(float fieldOfView) {
+	this->fieldOfView = fieldOfView;
 }

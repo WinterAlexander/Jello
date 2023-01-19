@@ -21,9 +21,16 @@ private:
 	glm::vec3 direction;
 	glm::vec3 up;
 
+	float fieldOfView = 45.0f;
+
 public:
 	Camera();
 
+	void setDirectionFromAngles(float yaw, float pitch);
+
+	/**
+	 * @return current position of the camera
+	 */
 	glm::vec3& getPosition();
 
 	/**
@@ -31,6 +38,9 @@ public:
 	 */
 	glm::vec3 getPosition() const;
 
+	/**
+	 * @return direction the camera is currently looking in
+	 */
 	glm::vec3& getDirection();
 
 	/**
@@ -38,6 +48,9 @@ public:
 	 */
 	glm::vec3 getDirection() const;
 
+	/**
+	 * @return vector pointing directly above the camera
+	 */
 	glm::vec3& getUp();
 
 	/**
@@ -49,6 +62,16 @@ public:
 	 * @return transform view matrice for the view of the camera
 	 */
 	glm::mat4 getView() const;
+
+	/**
+	 * @return angle of view of the camera
+	 */
+	float getFieldOfView() const;
+
+	/**
+	 * @param fieldOfView angle of view of the camera
+	 */
+	void setFieldOfView(float fieldOfView);
 };
 
 
