@@ -153,7 +153,15 @@ int main() {
             glm::vec3( 1.5f,  0.2f, -1.5f),
             glm::vec3(-1.3f,  1.0f, -1.5f)
     };
-
+    
+    glm::vec3 lightPositions[] = {
+            glm::vec3(0.0f, 5.0f, 0.0f)
+    };
+    
+    glm::vec3 lightColors[] = {
+            glm::vec3(1.0, 0.9, 0.9)
+    };
+    
     vao.bind();
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -176,8 +184,12 @@ int main() {
     glEnable(GL_DEPTH_TEST);
 
     shaderProgram->bind();
-    glUniform1i(shaderProgram->getUniformLocation("tex"), 0);
-
+    
+    shaderProgram->setUniformInt("u_texture", 0);
+    shaderProgram->setUniformInt("u_lightCount", 1);
+    shaderProgram->setUniformVec3Array("u_lightPositions", lightPositions, 1);
+    shaderProgram->setUniformVec3Array("u_lightColors", lightColors, 1);
+    
 	glm::mat4 view;
 	camera.getPosition() = { 0.0, 0.0, 3.0 };
 	camera.getDirection() = { 0.0, 0.0, -1.0 };
@@ -217,7 +229,8 @@ int main() {
             glm::mat4 proj = glm::perspective(glm::radians(camera.getFieldOfView()), 800.0f / 600.0f, 0.1f, 100.0f);
             glm::mat4x4 trans = proj * view * model;
 
-            glUniformMatrix4fv(shaderProgram->getUniformLocation("transform"), 1, GL_FALSE, glm::value_ptr(trans));
+            shaderProgram->setUniformMat4("u_transform", trans);
+            shaderProgram->setUniformMat4("u_transform", model);
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }

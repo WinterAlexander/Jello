@@ -7,6 +7,9 @@
 
 #include <string>
 #include <glad/glad.h>
+#include <vector>
+#include "glm/vec3.hpp"
+#include "glm/fwd.hpp"
 
 namespace jello {
     class ShaderProgram;
@@ -44,7 +47,17 @@ public:
     void bind() const;
 
     [[nodiscard]]
-    GLint getUniformLocation(const std::string& str) const;
+    GLint getUniformLocation(const std::string& uniformName);
+    
+    void setUniformInt(const std::string& uniformName, int value);
+    
+    void setUniformVec3(const std::string& uniformName, glm::vec3 vector);
+    
+    void setUniformVec3Array(const std::string& uniformName, std::vector<glm::vec3> array);
+    
+    void setUniformVec3Array(const std::string& uniformName, glm::vec3* array, size_t count);
+    
+    void setUniformMat4(const std::string& uniformName, glm::mat4 mat);
 
 private:
     void dispose();

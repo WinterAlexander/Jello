@@ -3,9 +3,11 @@
 //
 
 #include "render/ShaderProgram.h"
+#include "glm/gtc/type_ptr.hpp"
 #include <glad/glad.h>
 #include <render/ShaderCompilationError.h>
 #include <cstring>
+#include <vector>
 
 jello::ShaderProgram::~ShaderProgram() {
     dispose();
@@ -75,7 +77,7 @@ void jello::ShaderProgram::throwError(GLuint id, const char* error_prefix, bool 
 
     int infoLogLen;
     glGetShaderiv(id, GL_INFO_LOG_LENGTH, &infoLogLen);
-    int prefix_len = strlen(error_prefix);
+    size_t prefix_len = strlen(error_prefix);
     char* infoLog = (char*)malloc(infoLogLen + prefix_len);
     strcpy(infoLog, error_prefix);
     if(isProgram)
@@ -91,6 +93,33 @@ void jello::ShaderProgram::dispose() {
     shaderProgramId = -1;
 }
 
-GLint jello::ShaderProgram::getUniformLocation(const std::string& str) const {
-    return glGetUniformLocation(shaderProgramId, str.c_str());
+GLint jello::ShaderProgram::getUniformLocation(const std::string& uniformName) {
+    return glGetUniformLocation(shaderProgramId, uniformName.c_str());
+}
+
+void jello::ShaderProgram::setUniformInt(const std::string& uniformName, int value) {
+    glUniform1i(getUniformLocation(uniformName), value);
+}
+
+void jello::ShaderProgram::setUniformVec3(const std::string& uniformName, glm::vec3 vector) {
+    glUniform3f(getUniformLocation(uniformName), vector.x, vector.y, vector.z);
+}
+
+void jello::ShaderProgram::setUniformVec3Array(const std::string& uniformName, 
+                                               std::vector<glm::vec3> array) {
+    glUniform3fv(getUniformLocation(uniformName), 
+                 static_cast<GLint>(array.size()), 
+                 glm::value_ptr(array.front()));
+}
+
+void jello::ShaderProgram::setUniformVec3Array(const std::string& uniformName, 
+                                               glm::vec3* array,
+                                               size_t count) {
+    glUniform3fv(getUniformLocation(uniformName),
+                 static_cast<GLint>(count),
+                 glm::value_ptr(array[0]));
+}
+
+void jello::ShaderProgram::setUniformMat4(const std::string& uniformName, glm::mat4 mat) {
+    glUniformMatrix4fv(getUniformLocation(uniformName), 1, GL_FALSE, glm::value_ptr(mat));
 }
