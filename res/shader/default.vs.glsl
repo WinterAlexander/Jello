@@ -13,9 +13,9 @@ uniform mat4 u_model;
 
 void main()
 {
-    gl_Position = transform * vec4(aPos, 1.0);
+    gl_Position = u_transform * vec4(aPos, 1.0);
     color = aColor; // set ourColor to the input color we got from the vertex data
     texCoord = aTexCoord;
-    worldPosition = vec3(model * vec4(aPos, 1.0));
-    normal = aNormal;
+    worldPosition = vec3(u_model * vec4(aPos, 1.0));
+    normal = mat3(transpose(inverse(u_model))) * aNormal;
 }

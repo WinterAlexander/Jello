@@ -44,7 +44,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(1200, 900, "LearnOpenGL", nullptr, nullptr);
 
     if(!window)
     {
@@ -68,7 +68,7 @@ int main() {
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    glViewport(0, 0, 800, 600);
+    glViewport(0, 0, 1200, 900);
     
     jello::AssetLoader loader(logger);
 
@@ -83,62 +83,53 @@ int main() {
     jello::ShaderProgram* shaderProgram = loader.get(shaderAsset);
     jello::Texture* texture = loader.get(brickWallAsset);
 
-    GLuint vbo, ebo;
+    GLuint vbo;
     jello::VertexArrayObject vao;
 
     glGenBuffers(1, &vbo);
-    glGenBuffers(1, &ebo);
-
-    //float vertices[] = {
-    //        // pos                  color               tex coords
-    //        0.5f, 0.5f, 0.0f,       1.0f, 1.0f, 0.0f,   1.0f, 1.0f, // top right
-    //        0.5f, -0.5f, 0.0f,      1.0f, 0.0f, 1.0f,   1.0f, 0.0f, // bottom right
-    //        -0.5f, -0.5f, 0.0f,     0.0f, 1.0f, 1.0f,   0.0f, 0.0f, // bottom left
-    //        -0.5f, 0.5f, 0.0f,      1.0f, 1.0f, 1.0f,   0.0f, 1.0f, // top left
-    //};
-//
-    //unsigned int indices[] = {  // note that we start from 0!
-    //        0, 1, 3,   // first triangle
-    //        1, 2, 3    // second triangle
-    //};
 
     float vertices[] = {
-            -0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,
-            0.5f, -0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,
-            0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,
-            0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,
-            -0.5f,  0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,
-            -0.5f, -0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,
-            0.5f, -0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,
-            -0.5f,  0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     1.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     1.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     1.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,
-            0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    0.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    0.0f, 1.0f,
-            0.5f, -0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    0.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,
-            0.5f, -0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,
-            0.5f, -0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,
-            -0.5f, -0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,
-            -0.5f,  0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,
-            0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f
+            -0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,   0.0f, 0.0f, -1.0f,
+            0.5f, -0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,   0.0f, 0.0f, -1.0f,
+            0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,   0.0f, 0.0f, -1.0f,
+            0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,   0.0f, 0.0f, -1.0f,
+            -0.5f,  0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,   0.0f, 0.0f, -1.0f,
+            -0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,   0.0f, 0.0f, -1.0f,
+
+            -0.5f, -0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,   0.0f, 0.0f, 1.0f,
+            0.5f, -0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,   0.0f, 0.0f, 1.0f,
+            0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,   0.0f, 0.0f, 1.0f,
+            0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,   0.0f, 0.0f, 1.0f,
+            -0.5f,  0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,   0.0f, 0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,   0.0f, 0.0f, 1.0f,
+
+            -0.5f,  0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     1.0f, 0.0f,   -1.0f, 0.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     1.0f, 1.0f,   -1.0f, 0.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,   -1.0f, 0.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,   -1.0f, 0.0f, 0.0f,
+            -0.5f, -0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,   -1.0f, 0.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     1.0f, 0.0f,   -1.0f, 0.0f, 0.0f,
+
+            0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,   1.0f, 0.0f, 0.0f,
+            0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,   1.0f, 0.0f, 0.0f,
+            0.5f, -0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    0.0f, 1.0f,   1.0f, 0.0f, 0.0f,
+            0.5f, -0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    0.0f, 1.0f,   1.0f, 0.0f, 0.0f,
+            0.5f, -0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    0.0f, 0.0f,   1.0f, 0.0f, 0.0f,
+            0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,   1.0f, 0.0f, 0.0f,
+
+            -0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,   0.0f, -1.0f, 0.0f,
+            0.5f, -0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,   0.0f, -1.0f, 0.0f,
+            0.5f, -0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,   0.0f, -1.0f, 0.0f,
+            0.5f, -0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,   0.0f, -1.0f, 0.0f,
+            -0.5f, -0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,   0.0f, -1.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,   0.0f, -1.0f, 0.0f,
+
+            -0.5f,  0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,   0.0f, 1.0f, 0.0f,
+            0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,   0.0f, 1.0f, 0.0f,
+            0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,   0.0f, 1.0f, 0.0f,
+            0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,   0.0f, 1.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,   0.0f, 1.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,   0.0f, 1.0f, 0.0f,
     };
 
     glm::vec3 cubePositions[] = {
@@ -167,17 +158,21 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	// position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	// color attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	// texture coordinate attribute
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
+
+	// normal attribute
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(8 * sizeof(float)));
+	glEnableVertexAttribArray(3);
 
     vao.unbind();
 
@@ -189,10 +184,12 @@ int main() {
     shaderProgram->setUniformInt("u_lightCount", 1);
     shaderProgram->setUniformVec3Array("u_lightPositions", lightPositions, 1);
     shaderProgram->setUniformVec3Array("u_lightColors", lightColors, 1);
-    
+
 	glm::mat4 view;
 	camera.getPosition() = { 0.0, 0.0, 3.0 };
 	camera.getDirection() = { 0.0, 0.0, -1.0 };
+
+	shaderProgram->setUniformVec3("u_viewPosition", camera.getPosition());
 
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;
@@ -230,13 +227,11 @@ int main() {
             glm::mat4x4 trans = proj * view * model;
 
             shaderProgram->setUniformMat4("u_transform", trans);
-            shaderProgram->setUniformMat4("u_transform", model);
+            shaderProgram->setUniformMat4("u_model", model);
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
-        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        //glDrawArrays(GL_TRIANGLES, 0, 36);
         vao.unbind();
 
         glfwSwapBuffers(window);
@@ -251,22 +246,29 @@ int main() {
 }
 
 void processInput(GLFWwindow* window, float deltaTime) {
+
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-	 const float cameraSpeed = 5.0f * deltaTime; // adjust accordingly
+
+	const float cameraSpeed = 5.0f * deltaTime; // adjust accordingly
+
 	if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		camera.getPosition() += cameraSpeed * camera.getDirection();
+
 	if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 		camera.getPosition() -= cameraSpeed * camera.getDirection();
+
 	if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 		camera.getPosition() -= cameraSpeed * glm::normalize(glm::cross(camera.getDirection(), camera.getUp()));
+
 	if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.getPosition() += cameraSpeed * glm::normalize(glm::cross(camera.getDirection(), camera.getUp()));
+
     if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
         camera.getPosition() += cameraSpeed * camera.getUp();
+
     if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         camera.getPosition() -= cameraSpeed * camera.getUp();
-    
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
