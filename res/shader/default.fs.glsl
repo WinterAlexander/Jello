@@ -3,9 +3,10 @@ out vec4 FragColor;
 in vec3 color;
 in vec2 texCoord;
 in vec3 worldPosition; // position in world
-in vec3 normal; 
+in mat3 tbn;
 
 uniform sampler2D u_texture;
+uniform sampler2D u_normal;
 
 uniform vec3 u_lightPositions[128];
 uniform vec3 u_lightColors[128];
@@ -14,8 +15,8 @@ uniform vec3 u_viewPosition;
 
 void main()
 {
-    vec3 norm = normalize(normal);
-    
+    vec3 norm = normalize(tbn * (texture(u_normal, texCoord).rgb * 2.0 - vec3(1.0)));
+
     vec3 light = 0.4 * vec3(1.0); // ambient lighting
     
     for(int i = 0; i < 128 && i < u_lightCount; i++) {

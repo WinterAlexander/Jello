@@ -6,7 +6,6 @@
 #include <fstream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <render/ShaderCompilationError.h>
 #include <logging/StandardOutputLogger.h>
 #include <render/VertexArrayObject.h>
 #include "render/ShaderProgram.h"
@@ -14,14 +13,11 @@
 #include "asset/AssetLoader.h"
 #include "asset/ShaderAsset.h"
 #include "asset/TextureAsset.h"
-#include <memory>
-#include <sstream>
 #include <cmath>
 #include <stb_image.h>
 #include <render/Texture.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window, float deltaTime);
@@ -32,6 +28,71 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 jello::Camera camera;
 float lastX = NAN, lastY = NAN;
 float pitch = 0.0f, yaw = -90.0f;
+
+float vertices[] = {
+		-0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,   0.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,
+		0.5f, -0.5f, -0.5f,     1.0f, 1.0f, 1.0f,     1.0f, 0.0f,   0.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,
+		0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f,     1.0f, 1.0f,   0.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,
+		0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f,     1.0f, 1.0f,   0.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,   0.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,   0.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,
+
+		-0.5f, -0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f,
+		0.5f, -0.5f,  0.5f,     1.0f, 1.0f, 1.0f,     1.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f,     1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f,     1.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,   0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f,
+
+		-0.5f,  0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     1.0f, 0.0f,   -1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     1.0f, 1.0f,   -1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,   -1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,   -1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,   -1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     1.0f, 0.0f,   -1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+
+		0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,   1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+		0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,   1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+		0.5f, -0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    0.0f, 1.0f,   1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+		0.5f, -0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    0.0f, 1.0f,   1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+		0.5f, -0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    0.0f, 0.0f,   1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,   1.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+
+		-0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,   0.0f, -1.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+		0.5f, -0.5f, -0.5f,     1.0f, 1.0f, 1.0f,     1.0f, 1.0f,   0.0f, -1.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+		0.5f, -0.5f,  0.5f,     1.0f, 1.0f, 1.0f,     1.0f, 0.0f,   0.0f, -1.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+		0.5f, -0.5f,  0.5f,     1.0f, 1.0f, 1.0f,     1.0f, 0.0f,   0.0f, -1.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,   0.0f, -1.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,   0.0f, -1.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+
+		-0.5f,  0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,   0.0f, 1.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+		0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f,     1.0f, 1.0f,   0.0f, 1.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f,     1.0f, 0.0f,   0.0f, 1.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f,     1.0f, 0.0f,   0.0f, 1.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,   0.0f, 1.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,   0.0f, 1.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+};
+
+glm::vec3 cubePositions[] = {
+		glm::vec3( 0.0f,  0.0f,  0.0f),
+		glm::vec3( 2.0f,  5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3( 2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f,  3.0f, -7.5f),
+		glm::vec3( 1.3f, -2.0f, -2.5f),
+		glm::vec3( 1.5f,  2.0f, -2.5f),
+		glm::vec3( 1.5f,  0.2f, -1.5f),
+		glm::vec3(-1.3f,  1.0f, -1.5f)
+};
+
+glm::vec3 lightPositions[] = {
+		glm::vec3(0.0f, 5.0f, 0.0f)
+};
+
+glm::vec3 lightColors[] = {
+		glm::vec3(1.0, 0.9, 0.9)
+};
 
 int main() {
 
@@ -74,84 +135,23 @@ int main() {
 
     jello::ShaderAsset shaderAsset("res/shader/default.vs.glsl", "res/shader/default.fs.glsl");
     jello::TextureAsset brickWallAsset("res/gfx/brickwall.jpg");
+	jello::TextureAsset brickWallNormalAsset("res/gfx/brickwall_n.jpg");
     
     loader.load(shaderAsset);
     loader.load(brickWallAsset);
+	loader.load(brickWallNormalAsset);
     loader.finishLoading(shaderAsset);
     loader.finishLoading(brickWallAsset);
+	loader.finishLoading(brickWallNormalAsset);
     
     jello::ShaderProgram* shaderProgram = loader.get(shaderAsset);
     jello::Texture* texture = loader.get(brickWallAsset);
+	jello::Texture* normal = loader.get(brickWallNormalAsset);
 
     GLuint vbo;
     jello::VertexArrayObject vao;
 
     glGenBuffers(1, &vbo);
-
-    float vertices[] = {
-            -0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,   0.0f, 0.0f, -1.0f,
-            0.5f, -0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,   0.0f, 0.0f, -1.0f,
-            0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,   0.0f, 0.0f, -1.0f,
-            0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,   0.0f, 0.0f, -1.0f,
-            -0.5f,  0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,   0.0f, 0.0f, -1.0f,
-            -0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,   0.0f, 0.0f, -1.0f,
-
-            -0.5f, -0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,   0.0f, 0.0f, 1.0f,
-            0.5f, -0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,   0.0f, 0.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,   0.0f, 0.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,   0.0f, 0.0f, 1.0f,
-            -0.5f,  0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,   0.0f, 0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,   0.0f, 0.0f, 1.0f,
-
-            -0.5f,  0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     1.0f, 0.0f,   -1.0f, 0.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     1.0f, 1.0f,   -1.0f, 0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,   -1.0f, 0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,   -1.0f, 0.0f, 0.0f,
-            -0.5f, -0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,   -1.0f, 0.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     1.0f, 0.0f,   -1.0f, 0.0f, 0.0f,
-
-            0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,   1.0f, 0.0f, 0.0f,
-            0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,   1.0f, 0.0f, 0.0f,
-            0.5f, -0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    0.0f, 1.0f,   1.0f, 0.0f, 0.0f,
-            0.5f, -0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    0.0f, 1.0f,   1.0f, 0.0f, 0.0f,
-            0.5f, -0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    0.0f, 0.0f,   1.0f, 0.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,   1.0f, 0.0f, 0.0f,
-
-            -0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,   0.0f, -1.0f, 0.0f,
-            0.5f, -0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,   0.0f, -1.0f, 0.0f,
-            0.5f, -0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,   0.0f, -1.0f, 0.0f,
-            0.5f, -0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,   0.0f, -1.0f, 0.0f,
-            -0.5f, -0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,   0.0f, -1.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,   0.0f, -1.0f, 0.0f,
-
-            -0.5f,  0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,   0.0f, 1.0f, 0.0f,
-            0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 1.0f,   0.0f, 1.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,   0.0f, 1.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f,    1.0f, 0.0f,   0.0f, 1.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,   0.0f, 1.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 1.0f,   0.0f, 1.0f, 0.0f,
-    };
-
-    glm::vec3 cubePositions[] = {
-            glm::vec3( 0.0f,  0.0f,  0.0f),
-            glm::vec3( 2.0f,  5.0f, -15.0f),
-            glm::vec3(-1.5f, -2.2f, -2.5f),
-            glm::vec3(-3.8f, -2.0f, -12.3f),
-            glm::vec3( 2.4f, -0.4f, -3.5f),
-            glm::vec3(-1.7f,  3.0f, -7.5f),
-            glm::vec3( 1.3f, -2.0f, -2.5f),
-            glm::vec3( 1.5f,  2.0f, -2.5f),
-            glm::vec3( 1.5f,  0.2f, -1.5f),
-            glm::vec3(-1.3f,  1.0f, -1.5f)
-    };
-    
-    glm::vec3 lightPositions[] = {
-            glm::vec3(0.0f, 5.0f, 0.0f)
-    };
-    
-    glm::vec3 lightColors[] = {
-            glm::vec3(1.0, 0.9, 0.9)
-    };
     
     vao.bind();
 
@@ -159,20 +159,24 @@ int main() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	// position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
 	// color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
 	// texture coordinate attribute
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
 	// normal attribute
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(8 * sizeof(float)));
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(8 * sizeof(float)));
 	glEnableVertexAttribArray(3);
+
+	// tangent attribute
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(11 * sizeof(float)));
+	glEnableVertexAttribArray(4);
 
     vao.unbind();
 
@@ -181,9 +185,7 @@ int main() {
     shaderProgram->bind();
     
     shaderProgram->setUniformInt("u_texture", 0);
-    shaderProgram->setUniformInt("u_lightCount", 1);
-    shaderProgram->setUniformVec3Array("u_lightPositions", lightPositions, 1);
-    shaderProgram->setUniformVec3Array("u_lightColors", lightColors, 1);
+	shaderProgram->setUniformInt("u_normal", 1);
 
 	glm::mat4 view;
 	camera.getPosition() = { 0.0, 0.0, 3.0 };
@@ -212,8 +214,14 @@ int main() {
 
         shaderProgram->bind();
 
+	    shaderProgram->setUniformInt("u_lightCount", 1);
+	    shaderProgram->setUniformVec3Array("u_lightPositions", lightPositions, 1);
+	    shaderProgram->setUniformVec3Array("u_lightColors", lightColors, 1);
+
         glActiveTexture(GL_TEXTURE0);
         texture->bind();
+		glActiveTexture(GL_TEXTURE1);
+	    normal->bind();
         vao.bind();
 
         for(unsigned int i = 0; i < 10; i++)
@@ -251,6 +259,27 @@ void processInput(GLFWwindow* window, float deltaTime) {
         glfwSetWindowShouldClose(window, true);
 
 	const float cameraSpeed = 5.0f * deltaTime; // adjust accordingly
+
+	if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+
+		if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+			lightPositions[0].y += cameraSpeed;
+
+		if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+			lightPositions[0].y -= cameraSpeed;
+
+		if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+			lightPositions[0].x -= cameraSpeed;
+
+		if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+			lightPositions[0].x += cameraSpeed;
+
+		if(glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
+			lightPositions[0].z -= cameraSpeed;
+
+		if(glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
+			lightPositions[0].z += cameraSpeed;
+	}
 
 	if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		camera.getPosition() += cameraSpeed * camera.getDirection();
