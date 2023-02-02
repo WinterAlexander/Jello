@@ -101,6 +101,10 @@ void jello::ShaderProgram::setUniformInt(const std::string& uniformName, int val
     glUniform1i(getUniformLocation(uniformName), value);
 }
 
+void jello::ShaderProgram::setUniformFloat(const std::string& uniformName, float value) {
+    glUniform1f(getUniformLocation(uniformName), value);
+}
+
 void jello::ShaderProgram::setUniformVec3(const std::string& uniformName, glm::vec3 vector) {
     glUniform3f(getUniformLocation(uniformName), vector.x, vector.y, vector.z);
 }

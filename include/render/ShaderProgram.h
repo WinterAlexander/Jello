@@ -51,6 +51,8 @@ public:
     
     void setUniformInt(const std::string& uniformName, int value);
     
+    void setUniformFloat(const std::string& uniformName, float value);
+    
     void setUniformVec3(const std::string& uniformName, glm::vec3 vector);
     
     void setUniformVec3Array(const std::string& uniformName, std::vector<glm::vec3> array);

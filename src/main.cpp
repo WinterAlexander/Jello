@@ -186,6 +186,11 @@ int main() {
     
     shaderProgram->setUniformInt("u_texture", 0);
 	shaderProgram->setUniformInt("u_normal", 1);
+    
+    shaderProgram->setUniformVec3("u_material.ambient", { 1.0f, 1.0f, 1.0f });
+    shaderProgram->setUniformVec3("u_material.diffuse", { 1.0f, 1.0f, 1.0f });
+    shaderProgram->setUniformVec3("u_material.specular", { 0.5f, 0.5f, 0.5f });
+    shaderProgram->setUniformFloat("u_material.shininess", 32.0f);
 
 	glm::mat4 view;
 	camera.getPosition() = { 0.0, 0.0, 3.0 };
@@ -257,8 +262,8 @@ void processInput(GLFWwindow* window, float deltaTime) {
 
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-
-	const float cameraSpeed = 5.0f * deltaTime; // adjust accordingly
+    
+    const float cameraSpeed = 5.0f * deltaTime; // adjust accordingly
 
 	if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
 
