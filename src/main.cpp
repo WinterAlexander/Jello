@@ -136,17 +136,28 @@ int main() {
     jello::ShaderAsset shaderAsset("res/shader/default.vs.glsl", "res/shader/default.fs.glsl");
     jello::TextureAsset brickWallAsset("res/gfx/brickwall.jpg");
 	jello::TextureAsset brickWallNormalAsset("res/gfx/brickwall_n.jpg");
+    jello::TextureAsset containerAsset("res/gfx/container2.png");
+    jello::TextureAsset containerSpecularAsset("res/gfx/container2_specular.png");
+    jello::TextureAsset flatNormalAsset("res/gfx/flat_normal.png");
     
     loader.load(shaderAsset);
     loader.load(brickWallAsset);
 	loader.load(brickWallNormalAsset);
+    loader.load(containerAsset);
+    loader.load(containerSpecularAsset);
+    loader.load(flatNormalAsset);
+    
     loader.finishLoading(shaderAsset);
     loader.finishLoading(brickWallAsset);
 	loader.finishLoading(brickWallNormalAsset);
+    loader.finishLoading(containerAsset);
+    loader.finishLoading(containerSpecularAsset);
+    loader.finishLoading(flatNormalAsset);
     
     jello::ShaderProgram* shaderProgram = loader.get(shaderAsset);
-    jello::Texture* texture = loader.get(brickWallAsset);
-	jello::Texture* normal = loader.get(brickWallNormalAsset);
+    jello::Texture* texture = loader.get(containerAsset);
+    jello::Texture* specular = loader.get(containerSpecularAsset);
+	jello::Texture* normal = loader.get(flatNormalAsset);
 
     GLuint vbo;
     jello::VertexArrayObject vao;
@@ -184,12 +195,9 @@ int main() {
 
     shaderProgram->bind();
     
-    shaderProgram->setUniformInt("u_texture", 0);
-	shaderProgram->setUniformInt("u_normal", 1);
-    
-    shaderProgram->setUniformVec3("u_material.ambient", { 1.0f, 1.0f, 1.0f });
-    shaderProgram->setUniformVec3("u_material.diffuse", { 1.0f, 1.0f, 1.0f });
-    shaderProgram->setUniformVec3("u_material.specular", { 0.5f, 0.5f, 0.5f });
+    shaderProgram->setUniformInt("u_material.diffuse", 0);
+    shaderProgram->setUniformInt("u_material.normalMap", 1);
+    shaderProgram->setUniformInt("u_material.specularMap", 2);
     shaderProgram->setUniformFloat("u_material.shininess", 32.0f);
 
 	glm::mat4 view;
@@ -227,6 +235,8 @@ int main() {
         texture->bind();
 		glActiveTexture(GL_TEXTURE1);
 	    normal->bind();
+        glActiveTexture(GL_TEXTURE2);
+        specular->bind();
         vao.bind();
 
         for(unsigned int i = 0; i < 10; i++)

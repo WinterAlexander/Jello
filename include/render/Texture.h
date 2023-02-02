@@ -16,7 +16,7 @@ class jello::Texture {
     GLsizei width, height;
 
 public:
-    Texture(GLsizei width, GLsizei height, const unsigned char* data);
+    Texture(GLsizei width, GLsizei height, GLenum format, const unsigned char* data);
 
     ~Texture();
 

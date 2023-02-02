@@ -21,7 +21,13 @@ void* jello::TextureAsset::load() const {
     if(!data)
         throw std::runtime_error("Failed to load texture with STBI");
 
-    jello::Texture* texture = new Texture(width, height, data);
+    if(nrChannels != 3 && nrChannels != 4)
+        throw std::runtime_error("Failed to load texture with STBI");
+    
+    jello::Texture* texture = new Texture(width, 
+                                          height,
+                                          nrChannels == 3 ? GL_RGB : GL_RGBA, 
+                                          data);
 
     stbi_image_free(data);
     
