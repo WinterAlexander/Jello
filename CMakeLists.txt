@@ -86,17 +86,14 @@ target_link_libraries(Jello_tests glfw)
 if(NOT WIN32 OR MINGW)
     target_link_libraries(Jello_tests
             ${GTEST_LIBS_DIR}/libgtest.a
-            ${GTEST_LIBS_DIR}/libgtest_main.a
-            )
+            ${GTEST_LIBS_DIR}/libgtest_main.a)
 else()
     target_link_libraries(Jello_tests
             debug ${GTEST_LIBS_DIR}/DebugLibs/${CMAKE_FIND_LIBRARY_PREFIXES}gtest${CMAKE_FIND_LIBRARY_SUFFIXES}
-            optimized ${GTEST_LIBS_DIR}/ReleaseLibs/${CMAKE_FIND_LIBRARY_PREFIXES}gtest${CMAKE_FIND_LIBRARY_SUFFIXES}
-            )
+            optimized ${GTEST_LIBS_DIR}/ReleaseLibs/${CMAKE_FIND_LIBRARY_PREFIXES}gtest${CMAKE_FIND_LIBRARY_SUFFIXES})
     target_link_libraries(Jello_tests
             debug ${GTEST_LIBS_DIR}/DebugLibs/${CMAKE_FIND_LIBRARY_PREFIXES}gtest_main${CMAKE_FIND_LIBRARY_SUFFIXES}
-            optimized ${GTEST_LIBS_DIR}/ReleaseLibs/${CMAKE_FIND_LIBRARY_PREFIXES}gtest_main${CMAKE_FIND_LIBRARY_SUFFIXES}
-            )
+            optimized ${GTEST_LIBS_DIR}/ReleaseLibs/${CMAKE_FIND_LIBRARY_PREFIXES}gtest_main${CMAKE_FIND_LIBRARY_SUFFIXES})
 endif()
 
 target_link_libraries(Jello_tests ${CMAKE_THREAD_LIBS_INIT} Jello_lib)

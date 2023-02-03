@@ -19,7 +19,7 @@ void* jello::TextureAsset::load() const {
     unsigned char *data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
 
     if(!data)
-        throw std::runtime_error("Failed to load texture with STBI");
+        throw std::runtime_error(std::string("Failed to load texture with STBI: ") + stbi_failure_reason());
 
     if(nrChannels != 3 && nrChannels != 4)
         throw std::runtime_error("Unsupported number of channels: " + std::to_string(nrChannels));

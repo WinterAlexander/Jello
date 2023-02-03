@@ -19,7 +19,6 @@
 #include <render/Texture.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <assimp/aabb.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window, float deltaTime);
@@ -31,7 +30,6 @@ jello::Camera camera;
 float lastX = NAN, lastY = NAN;
 float pitch = 0.0f, yaw = -90.0f;
 
-struct aiAABB aabb;
 
 float vertices[] = {
 		-0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,   0.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,
@@ -99,7 +97,6 @@ glm::vec3 lightColors[] = {
 };
 
 int main() {
-	aabb.mMax.x = 2.0f;
     jello::StandardOutputLogger logger;
 
     logger.info() << "Initialized logger to standard ouput.";
