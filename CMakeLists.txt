@@ -12,18 +12,46 @@ set(GLFW_VERSION 3.3.2)
 set(GTEST_VERSION release-1.10.0)
 set(GLAD_VERSION v0.1.33)
 set(GLM_VERSION 0.9.9.8)
+set(ASSIMP_VERSION v5.2.5)
+set(STB_COMMIT 5736b15f7ea0ffb08dd38af21067c314d6a3aae9)
 
-file(GLOB_RECURSE JELLO_SRC_FILES "src/*.cpp" "include/*.h" "lib/stb_image/*.cpp" "lib/stb_image/*.h")
+include(FetchContent)
+
+FetchContent_Declare(stb
+        GIT_REPOSITORY git@github.com:nothings/stb.git
+        GIT_TAG ${STB_COMMIT})
+FetchContent_MakeAvailable(stb)
+FetchContent_GetProperties(stb SOURCE_DIR STB_SOURCE_DIR)
+
+FetchContent_Declare(glm
+        GIT_REPOSITORY git@github.com:g-truc/glm.git
+        GIT_TAG ${GLM_VERSION})
+FetchContent_MakeAvailable(glm)
+FetchContent_GetProperties(glm SOURCE_DIR GLM_SOURCE_DIR)
+
+FetchContent_Declare(assimp
+        GIT_REPOSITORY https://github.com/assimp/assimp.git
+        GIT_TAG ${ASSIMP_VERSION})
+
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_INJECT_DEBUG_POSTFIX OFF CACHE BOOL "" FORCE)
+set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
+
+FetchContent_MakeAvailable(assimp)
+FetchContent_GetProperties(assimp SOURCE_DIR ASSIMP_SOURCE_DIR BINARY_DIR ASSIMP_BINARY_DIR)
+
+file(GLOB_RECURSE JELLO_SRC_FILES "src/*.cpp" "include/*.h")
 
 add_subdirectory(lib/glad)
 add_subdirectory(lib/glfw)
-add_subdirectory(lib/glm)
 
 include_directories(include)
-include_directories(lib/stb_image)
 include_directories(${GLAD_INCLUDE_DIRS})
 include_directories(${GLFW_INCLUDE_DIRS})
-include_directories(${GLM_INCLUDE_DIRS})
+include_directories(${GLM_SOURCE_DIR}/glm)
+include_directories(${STB_SOURCE_DIR})
+include_directories(${ASSIMP_SOURCE_DIR}/include)
 
 add_library(Jello_lib ${JELLO_SRC_FILES})
 add_executable(Jello ${JELLO_SRC_FILES})
@@ -39,6 +67,9 @@ target_link_libraries(Jello_lib glad)
 
 target_link_libraries(Jello glm)
 target_link_libraries(Jello_lib glm)
+
+target_link_libraries(Jello assimp)
+target_link_libraries(Jello_lib assimp)
 
 add_subdirectory(lib/gtest)
 enable_testing()

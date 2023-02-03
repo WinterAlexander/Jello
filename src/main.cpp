@@ -2,6 +2,8 @@
 // Created by Alexander Winter on 2020-06-20.
 //
 
+#define STB_IMAGE_IMPLEMENTATION
+
 #include <iostream>
 #include <fstream>
 #include <glad/glad.h>
@@ -14,10 +16,10 @@
 #include "asset/ShaderAsset.h"
 #include "asset/TextureAsset.h"
 #include <cmath>
-#include <stb_image.h>
 #include <render/Texture.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <assimp/aabb.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window, float deltaTime);
@@ -28,6 +30,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 jello::Camera camera;
 float lastX = NAN, lastY = NAN;
 float pitch = 0.0f, yaw = -90.0f;
+
+struct aiAABB aabb;
 
 float vertices[] = {
 		-0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 1.0f,     0.0f, 0.0f,   0.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,
@@ -95,7 +99,7 @@ glm::vec3 lightColors[] = {
 };
 
 int main() {
-
+	aabb.mMax.x = 2.0f;
     jello::StandardOutputLogger logger;
 
     logger.info() << "Initialized logger to standard ouput.";
