@@ -15,7 +15,8 @@ namespace jello {
 class jello::ShaderCompilationError : public std::exception {
     const std::string error;
 public:
-    ShaderCompilationError(std::string error) : error(std::move(error)) {}
+    ShaderCompilationError(std::string error) 
+            : error(std::move(error)) {}
 
     [[nodiscard]]
     const char* what() const noexcept override;
