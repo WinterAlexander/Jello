@@ -50,7 +50,7 @@ void jello::AssetLoader::finishLoading(const AssetBase& asset) {
 
     try
     {
-        void* pointer = asset.load();
+	    const void* pointer = asset.load();
 
         map[&asset] = pointer;
         logger.info() << "[AssetLoader] Loaded asset " << asset.getName();

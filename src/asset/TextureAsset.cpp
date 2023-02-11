@@ -11,7 +11,7 @@
 jello::TextureAsset::TextureAsset(std::string path)
     : SinglePathAsset(std::move(path)) {}
 
-void* jello::TextureAsset::load() const {
+const void* jello::TextureAsset::load() const {
 
     stbi_set_flip_vertically_on_load(true);
 

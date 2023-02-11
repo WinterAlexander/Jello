@@ -23,7 +23,7 @@ public:
                          std::string fragmentPath);
 
     [[nodiscard]]
-    void* load() const override;
+    const void* load() const override;
 
     [[nodiscard]]
     const std::string& getName() const override;

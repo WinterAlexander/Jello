@@ -21,7 +21,7 @@ namespace jello {
 class jello::AssetLoader {
     const Logger& logger;
 
-    mutable std::map<const AssetBase*, void*> map;
+    mutable std::map<const AssetBase*, const void*> map;
 
     uint32_t loaded = 0;
 public:
@@ -43,12 +43,12 @@ public:
 
     template<class T>
     T* get(const Asset<T>& asset) const {
-        void* pointer = map[&asset];
+	    const void* pointer = map[&asset];
 
         if(pointer == nullptr)
             throw std::invalid_argument("Asset " + asset.getName() + " not loaded");
 
-        return static_cast<T*>(pointer);
+        return const_cast<T*>(static_cast<const T*>(pointer));
     }
 
     bool isLoaded(const AssetBase& asset) const;

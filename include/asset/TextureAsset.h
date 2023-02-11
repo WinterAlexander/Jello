@@ -18,8 +18,8 @@ class jello::TextureAsset : public jello::SinglePathAsset<jello::Texture> {
 public:
     explicit TextureAsset(std::string path);
 
-    [[nodiscard]] 
-    void* load() const override;
+    [[nodiscard]]
+    const void* load() const override;
 };
 
 

@@ -17,9 +17,9 @@ public:
     virtual ~AssetBase() = default;
 
     [[nodiscard]]
-    virtual void* load() const = 0;
+    virtual const void* load() const = 0;
 
-    virtual void dispose(void* data) const = 0;
+    virtual void dispose(const void* data) const = 0;
 
     [[nodiscard]]
     virtual const std::string& getName() const = 0;

@@ -10,7 +10,6 @@
 #include "Vertex.h"
 #include "render/Texture.h"
 #include "render/ShaderProgram.h"
-#include "MeshTextureType.h"
 #include "MeshTexture.h"
 
 namespace jello {

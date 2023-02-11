@@ -16,7 +16,7 @@ ShaderAsset::ShaderAsset(std::string vertexPath,
       name(this->vertexPath + " - " + this->fragmentPath) {
 }
 
-void* ShaderAsset::load() const {
+const void* ShaderAsset::load() const {
     std::ifstream vsSourceFile(vertexPath);
     std::ifstream fsSourceFile(fragmentPath);
 

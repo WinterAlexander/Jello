@@ -15,7 +15,7 @@ namespace jello {
 template <typename T>
 class jello::Asset : public jello::AssetBase {
 public:
-    void dispose(void* data) const override {
+    void dispose(const void* data) const override {
         delete (T*)data;
     }
 };

@@ -19,6 +19,7 @@ struct jello::Vertex {
 	glm::vec3 position;
 	glm::vec3 normal, tangent;
 	glm::vec2 textureCoordinates;
+	glm::vec3 color;
 };
 
 
