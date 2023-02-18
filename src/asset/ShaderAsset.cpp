@@ -13,7 +13,8 @@ ShaderAsset::ShaderAsset(std::string vertexPath,
                          std::string fragmentPath)
     : vertexPath(std::move(vertexPath)), 
       fragmentPath(std::move(fragmentPath)), 
-      name(this->vertexPath + " - " + this->fragmentPath) {
+      name(this->vertexPath + " - " + this->fragmentPath),
+      hashCode(std::hash<std::string>{}(name)) {
 }
 
 const void* ShaderAsset::load() const {
@@ -46,4 +47,17 @@ const void* ShaderAsset::load() const {
 
 const std::string& ShaderAsset::getName() const {
     return name;
+}
+
+bool ShaderAsset::isEquivalentTo(const AssetBase* asset) const {
+    if(const ShaderAsset* shaderAsset = dynamic_cast<const ShaderAsset*>(asset)) {
+        return shaderAsset->vertexPath == vertexPath 
+            && shaderAsset->fragmentPath == fragmentPath;
+    }
+    
+    return false;
+}
+
+size_t ShaderAsset::getHashCode() {
+    return hashCode;
 }

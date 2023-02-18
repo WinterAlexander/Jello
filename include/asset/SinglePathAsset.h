@@ -24,6 +24,19 @@ public:
     [[nodiscard]] 
     const std::string& getName() const override;
 
+    [[nodiscard]]
+    bool isEquivalentTo(const AssetBase* asset) const override {
+        if(const SinglePathAsset* singlePathAsset = dynamic_cast<const SinglePathAsset*>(asset))
+            return path == singlePathAsset->path;
+        
+        return false;
+    }
+
+    [[nodiscard]]
+    size_t getHashCode() const override {
+        return std::hash<std::string>{}(path);
+    }
+
 };
 
 template<typename T>
