@@ -5,7 +5,7 @@
 #ifndef GAMETEMPLATE_ASSETBASE_H
 #define GAMETEMPLATE_ASSETBASE_H
 
-
+#include <vector>
 #include <string>
 
 namespace jello {

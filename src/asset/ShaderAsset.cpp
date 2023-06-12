@@ -58,6 +58,6 @@ bool ShaderAsset::isEquivalentTo(const AssetBase* asset) const {
     return false;
 }
 
-size_t ShaderAsset::getHashCode() {
+size_t ShaderAsset::getHashCode() const {
     return hashCode;
 }

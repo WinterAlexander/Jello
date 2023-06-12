@@ -31,7 +31,7 @@ public:
 
     bool isEquivalentTo(const AssetBase* asset) const override;
 
-    size_t getHashCode() override;
+    size_t getHashCode() const override;
 };
 
 
