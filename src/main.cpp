@@ -6,7 +6,7 @@
 
 #include <iostream>
 #include <fstream>
-#include <glad/glad.h>
+#include <glad/gl.h>
 #include <GLFW/glfw3.h>
 #include <logging/StandardOutputLogger.h>
 #include <render/VertexArrayObject.h>
@@ -117,12 +117,13 @@ int main() {
 
     glfwMakeContextCurrent(window);
 
-    if(!gladLoadGL()) {
+	int version = gladLoadGL(glfwGetProcAddress);
+    if(!version) {
         logger.error() << "glad failed to load";
         exit(-1);
     }
 
-    logger.info() << "glad loaded OpenGL " << GLVersion.major << "." << GLVersion.minor;
+    logger.info() << "glad loaded OpenGL " << GLAD_VERSION_MAJOR(version) << "." << GLAD_VERSION_MINOR(version);
 
     int nrAttributes;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);

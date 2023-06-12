@@ -5,7 +5,7 @@
 #ifndef JELLO_VERTEXARRAYOBJECT_H
 #define JELLO_VERTEXARRAYOBJECT_H
 
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 namespace jello {
     class VertexArrayObject;

@@ -4,7 +4,7 @@
 
 #include "render/ShaderProgram.h"
 #include "glm/gtc/type_ptr.hpp"
-#include <glad/glad.h>
+#include <glad/gl.h>
 #include <render/ShaderCompilationError.h>
 #include <cstring>
 #include <vector>

@@ -4,7 +4,9 @@ project(glad C)
 if(EXISTS glad)
     message(STATUS "glad already generated")
 ELSE()
-    execute_process(COMMAND glad --generator=c --profile=core --out-path=glad)
+    execute_process(COMMAND glad --api gl:core=3.3 --out-path=glad c OUTPUT_VARIABLE out ERROR_VARIABLE err)
+    message(STATUS "Output: ${out}")
+    message(STATUS "Error: ${err}")
 endif()
 
 

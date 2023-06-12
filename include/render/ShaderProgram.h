@@ -6,7 +6,7 @@
 #define JELLO_SHADERPROGRAM_H
 
 #include <string>
-#include <glad/glad.h>
+#include <glad/gl.h>
 #include <vector>
 #include "glm/vec3.hpp"
 #include "glm/fwd.hpp"

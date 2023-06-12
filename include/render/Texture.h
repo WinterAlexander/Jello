@@ -5,7 +5,7 @@
 #ifndef JELLO_TEXTURE_H
 #define JELLO_TEXTURE_H
 
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 namespace jello {
     class Texture;
