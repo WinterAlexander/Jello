@@ -7,21 +7,27 @@
 
 
 #include <cstdint>
-#include <map>
 #include <memory>
 #include <stdexcept>
 #include <vector>
+#include <unordered_map>
 #include "Asset.h"
 #include "logging/Logger.h"
 
 namespace jello {
 	class AssetLoader;
+
+    struct AssetHash {
+        std::size_t operator()(const AssetBase*& asset) const noexcept {
+            return asset->getHashCode();
+        }
+    };
 }
 
 class jello::AssetLoader {
     const Logger& logger;
 
-    mutable std::map<const AssetBase*, const void*> map;
+    mutable std::unordered_map<const AssetBase*, const void*> map;
 
     uint32_t loaded = 0;
 public:
@@ -41,6 +47,10 @@ public:
 
 	void finishLoadingAll();
 
+    const void* get(const AssetBase& asset) const {
+        return map[&asset];    
+    }
+    
     template<class T>
     T* get(const Asset<T>& asset) const {
 	    const void* pointer = map[&asset];

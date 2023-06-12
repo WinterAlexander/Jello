@@ -17,6 +17,7 @@ class jello::ShaderAsset : public jello::Asset<jello::ShaderProgram> {
     const std::string vertexPath;
     const std::string fragmentPath;
     const std::string name;
+    const size_t hashCode;
     
 public:
     explicit ShaderAsset(std::string vertexPath, 
@@ -27,6 +28,10 @@ public:
 
     [[nodiscard]]
     const std::string& getName() const override;
+
+    bool isEquivalentTo(const AssetBase* asset) const override;
+
+    size_t getHashCode() override;
 };
 
 

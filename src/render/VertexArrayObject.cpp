@@ -4,7 +4,8 @@
 
 #include "render/VertexArrayObject.h"
 
-jello::VertexArrayObject::VertexArrayObject() : vaoId(genVAO()) {
+jello::VertexArrayObject::VertexArrayObject() 
+        : vaoId(genVAO()) {
 
 }
 
