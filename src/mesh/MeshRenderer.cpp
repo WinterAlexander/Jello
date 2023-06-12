@@ -113,3 +113,7 @@ std::vector<unsigned int> jello::MeshRenderer::loadIndices(const aiMesh* mesh) {
     
     return indices;
 }
+
+std::vector<jello::MeshTexture> jello::MeshRenderer::loadTextures(const aiMesh *mesh, const aiScene *scene) {
+    return std::vector<jello::MeshTexture>();
+}
